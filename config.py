@@ -1,3 +1,3 @@
-URL = ' http://localhost:5173/'
+URL = 'https://agile-life-web.onrender.com/'
 NUM_SALAS = 1
 PARTICIPANTES_POR_SALA = 4
