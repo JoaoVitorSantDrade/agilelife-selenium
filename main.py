@@ -104,14 +104,18 @@ def entrar_na_sala(driver, id):
 if __name__ == '__main__':
     
     salas_thread = []
-    for i in range(config.NUM_SALAS):
-        thread = Thread(target=criar_sala, args=(config.PARTICIPANTES_POR_SALA,), name=f'Sala {i + 1}')
-        salas_thread.append(thread)
-        print("Criando sala")
-        thread.start()
-    
-    for thread in salas_thread:
-        thread.join()
+    try:
+        for i in range(config.NUM_SALAS):
+            thread = Thread(target=criar_sala, args=(config.PARTICIPANTES_POR_SALA,), name=f'Sala {i + 1}')
+            salas_thread.append(thread)
+            print("Criando sala")
+            thread.start()
+        
+        for thread in salas_thread:
+            thread.join()
+    except AssertionError:
+        print("Teste falhou")
+        exit(1)
 
 
     
