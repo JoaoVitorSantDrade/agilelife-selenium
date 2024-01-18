@@ -4,22 +4,28 @@ from re import T
 import time
 import uuid
 import config
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+from threading import Thread
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
-from threading import Thread
 
-service = Service(executable_path='B:\\dev\\webdriver\\chromedriver.exe')
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.core.os_manager import ChromeType
+
+
+service = Service(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
+service.start()
 
 options = webdriver.ChromeOptions()
 options.add_argument("--headless=new")
 
-async def criar_sala(num_participantes:int = 1):
+def criar_sala(num_participantes:int = 1):
     
-    host_da_sala = webdriver.Chrome(service=service)
+    host_da_sala = webdriver.Remote(service.service_url, options=options)
 
     tabs = [host_da_sala.current_window_handle]
     
@@ -48,7 +54,8 @@ async def criar_sala(num_participantes:int = 1):
 
     participantes_nomes = ["Host"]
 
-    for i in range(num_participantes):
+    for i in range(num_participantes - 1):
+        print(f"Participante {i + 1} entrando na sala\n")
         id = str(uuid.uuid4())[:6]
         participantes_nomes.append(f"P-{id}")
         host_da_sala.switch_to.new_window('tab')
@@ -58,6 +65,7 @@ async def criar_sala(num_participantes:int = 1):
 
     host_da_sala.switch_to.window(tabs[0])
     alterar_papel(host_da_sala, len(participantes_nomes))
+    print("Teste passou: todos os participantes tiveram seu Papel alterado\n")
     for  tab in tabs:
         host_da_sala.switch_to.window(tab)
         verificar_se_esta_na_sala(host_da_sala)
@@ -80,6 +88,7 @@ def alterar_papel(driver:webdriver.Chrome, num_participantes:int = 1):
 
     wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(text(), "Iniciar partida")]'))) \
         .click()
+    
     return
 
 def entrar_na_sala(driver, id):
@@ -96,15 +105,13 @@ if __name__ == '__main__':
     
     salas_thread = []
     for i in range(config.NUM_SALAS):
-        thread = Thread(target=asyncio.run(criar_sala(config.PARTICIPANTES_POR_SALA)), name=f'Sala {i + 1}')
+        thread = Thread(target=criar_sala, args=(config.PARTICIPANTES_POR_SALA,), name=f'Sala {i + 1}')
         salas_thread.append(thread)
         print("Criando sala")
         thread.start()
     
     for thread in salas_thread:
-        print("Aguardando sala ser criada")
         thread.join()
-        print("Entrou na sala")
 
 
     
