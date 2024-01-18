@@ -1,10 +1,6 @@
 
-import asyncio
-from re import T
-import time
 import uuid
 
-from regex import E
 import config
 from threading import Thread
 from selenium.webdriver.common.by import By
@@ -37,7 +33,7 @@ def criar_sala(num_participantes:int = 1):
         # Wait for the element to appear with a timeout of 10 seconds
         wait = WebDriverWait(host_da_sala, 30)
 
-        print("Aguardando botão de criar sala ficar disponível")
+        print("\nAguardando botão de criar sala ficar disponível\n")
         assert wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(text(), "Criar Sala")]'))).is_enabled()
         print("Teste passou: botão de criar sala está disponível\n")
         host_da_sala.find_element(By.XPATH, '//button[contains(text(), "Criar Sala")]').click()
