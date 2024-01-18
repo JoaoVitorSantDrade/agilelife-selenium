@@ -42,7 +42,7 @@ class exceptionThread(threading.Thread):
 
 def criar_sala(num_participantes:int = 1):
     
-    print("\nIniciando teste de criação de sala\n")
+    print("\nIniciando teste de criação de sala")
     host_da_sala = webdriver.Remote(service.service_url, options=options)
 
     tabs = [host_da_sala.current_window_handle]
@@ -52,7 +52,7 @@ def criar_sala(num_participantes:int = 1):
         raise MyException("Não foi possível acessar a URL")
 
     # Wait for the element to appear with a timeout of 10 seconds
-    wait = WebDriverWait(host_da_sala, 30)
+    wait = WebDriverWait(host_da_sala, config.DEFAULT_TIMEOUT)
 
     print("\nAguardando botão de criar sala ficar disponível\n")
 
@@ -111,12 +111,12 @@ def criar_sala(num_participantes:int = 1):
         
 
 def verificar_se_esta_na_sala(driver:webdriver.Chrome):
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, config.DEFAULT_TIMEOUT)
     assert wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'Tabuleiro'))).is_displayed()
     return
 
 def alterar_papel(driver:webdriver.Chrome, num_participantes:int = 1):
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, config.DEFAULT_TIMEOUT)
     for i in range(num_participantes):
         try:
             select_element = wait.until(EC.presence_of_element_located((By.ID, f'participante_{i}')))
@@ -136,7 +136,7 @@ def alterar_papel(driver:webdriver.Chrome, num_participantes:int = 1):
 def entrar_na_sala(driver, id):
 
     try:
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, config.DEFAULT_TIMEOUT)
         wait.until(EC.presence_of_element_located((By.ID, 'input-nick'))) \
             .send_keys(f"P-{id}")
         wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(text(), "Entrar na Sala")]'))) \
@@ -153,7 +153,6 @@ if __name__ == '__main__':
         for i in range(config.NUM_SALAS):
             thread = exceptionThread(target=criar_sala, args=(config.PARTICIPANTES_POR_SALA,), name=f'Sala {i + 1}')
             salas_thread.append(thread)
-            print("Criando sala")
             thread.start()
         
         for thread in salas_thread:
